@@ -1,9 +1,12 @@
-d3.select(window).on("resize", throttle);
+var width = document.getElementById('container').offsetWidth-60;
+var height = width/1.5;
+var centered;
 
 var width = screen.width,
     height = screen.height,
-    centered,
-    canZoom=true;
+    centered;
+
+var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden").attr("id", "tooltip");
 
 function zoomToCountry(k,x,y){
   g.selectAll("path")
@@ -44,7 +47,7 @@ var projection = d3.geo.mercator()
 var path = d3.geo.path()
     .projection(projection);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#container").append("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -57,19 +60,19 @@ svg.append("rect")
 
 var g = svg.append("g");
 
-d3.json("world.json", function(error, uk) {
-
-
-
+d3.json("world.json", function(error, map) {
+  var w = document.getElementById('container').width;
+  var h =document.getElementById('container').height;
 
   //color map
-  g.selectAll(".subunit")
-   .data(topojson.feature(uk,uk.objects.subunits).features)
+  var country = g.selectAll(".country")
+   .data(topojson.feature(map,map.objects.subunits).features)
    .enter()
    .append("path")
-
-   .attr("class", function(d) { return "subunit " + d.id; })
+   .attr("class", function(d) { return "country " + d.id; })
    .style("fill", function(){
+
+
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
     for (var i = 0; i < 6; i++ ) {
@@ -78,7 +81,22 @@ d3.json("world.json", function(error, uk) {
     return color;
   })
    .attr("d", path)
-   .on("click", clicked);
+   .on("click", clicked)
+   .on("mousemove", function(d,i) {
+      var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+        tooltip
+          .classed("hidden", false)
+          .html(d.properties.name)
+          .attr("style", function(d) {
+            var tooltipWidth = parseInt(tooltip.style("width"));
+            var left  = "left:"+(mouse[0]-tooltipWidth-10)+"px;top:"+(mouse[1]+10)+"px";
+            var right = "left:"+(mouse[0]+15)+"px;top:"+(mouse[1]+10)+"px";
+            return mouse[0] > width/2 ? left : right;
+          })
+      })
+      .on("mouseout",  function(d,i) {
+        tooltip.classed("hidden", true)
+      });
 });
 
 function zoom() {
@@ -94,4 +112,7 @@ function throttle() {
     throttleTimer = window.setTimeout(function() {
       redraw();
     }, 200);
-}
+
+		 
+};
+
