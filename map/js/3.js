@@ -4,8 +4,8 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([1, 8])
     .on("zoom", move);
 
-var width = screen.width;
-var height = screen.height;
+var width = document.getElementById('container').offsetWidth-60;
+var height = width / 2;
 var centered;
 
 var scale = width / 2 / Math.PI;
