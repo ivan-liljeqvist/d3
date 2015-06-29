@@ -2,9 +2,10 @@ d3.select(window).on("resize", throttle);
 
 var width = screen.width,
     height = screen.height,
-    centered;
+    centered,
+    canZoom=true;
 
-function zoom(k,x,y){
+function zoomToCountry(k,x,y){
   g.selectAll("path")
       .classed("active", centered && function(d) { return d === centered; });
 
@@ -14,11 +15,9 @@ function zoom(k,x,y){
       .style("stroke-width", 1.5 / k + "px");
 }
 
-function doubleClicked(d){
-  
-}
 
 function clicked(d) {
+
   var x, y, k;
 
   if (centered !== d) {
@@ -34,7 +33,7 @@ function clicked(d) {
     centered = null;
   }
 
-  zoom(k,x,y)
+  zoomToCountry(k,x,y)
 }
 
 
@@ -53,7 +52,8 @@ svg.append("rect")
     .attr("class", "background")
     .attr("width", width)
     .attr("height", height)
-    .on("click", clicked);
+    .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+    //.on("click", clicked);
 
 var g = svg.append("g");
 
@@ -77,8 +77,16 @@ d3.json("world.json", function(error, uk) {
     }
     return color;
   })
-   .attr("d", path).on("click", clicked);
+   .attr("d", path)
+   .on("click", clicked);
 });
+
+function zoom() {
+
+  g.transition()
+      .duration(500)
+    .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+}
 
 var throttleTimer;
 function throttle() {
