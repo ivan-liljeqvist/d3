@@ -14,10 +14,12 @@ function zoom(k,x,y){
       .style("stroke-width", 1.5 / k + "px");
 }
 
+function doubleClicked(d){
+  
+}
 
 function clicked(d) {
   var x, y, k;
-
 
   if (centered !== d) {
     var centroid = path.centroid(d);
