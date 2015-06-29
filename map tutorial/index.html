@@ -35,6 +35,17 @@ var width = screen.width,
     height = screen.height,
     centered;
 
+function zoom(k,x,y){
+  g.selectAll("path")
+      .classed("active", centered && function(d) { return d === centered; });
+
+  g.transition()
+      .duration(750)
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+      .style("stroke-width", 1.5 / k + "px");
+}
+
+
 function clicked(d) {
   var x, y, k;
 
@@ -52,20 +63,12 @@ function clicked(d) {
     centered = null;
   }
 
-  g.selectAll("path")
-      .classed("active", centered && function(d) { return d === centered; });
-
-  g.transition()
-      .duration(750)
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-      .style("stroke-width", 1.5 / k + "px");
+  zoom(k,x,y)
 }
 
-var projection = d3.geo.albers()
-    .center([0, 55.4])
-    .rotate([4.4, 0])
-    .parallels([50, 60])
-    .scale(1000)
+
+var projection = d3.geo.mercator()
+    .scale(230)
     .translate([width / 2, height / 2]);
 
 var path = d3.geo.path()
