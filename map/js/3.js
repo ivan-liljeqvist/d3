@@ -8,6 +8,8 @@ var width = document.getElementById('container').offsetWidth-60;
 var height = width / 2;
 var centered;
 
+var scale = width / 2 / Math.PI;
+
 var topo,projection,path,svg,g;
 
 var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
@@ -17,12 +19,11 @@ setup(width,height);
 function clicked(d) {
   var x, y, k;
 
-
   if (centered !== d) {
     var centroid = path.centroid(d);
     x = centroid[0];
     y = centroid[1];
-    k = width / 2 / Math.PI*0.04;
+    k = scale/16;
     centered = d;
   } else {
     x = width / 2;
@@ -43,7 +44,7 @@ function clicked(d) {
 function setup(width,height){
   projection = d3.geo.mercator()
     .translate([0, 0])
-    .scale(width / 2 / Math.PI);
+    .scale(scale);
 
   path = d3.geo.path()
       .projection(projection);
@@ -94,7 +95,10 @@ function draw(topo) {
       })
       .on("mouseout",  function(d,i) {
         tooltip.classed("hidden", true)
-      }).on("click", clicked); 
+      })
+      .on("click", function(d, i) {
+        clicked(d)
+      }); 
    
 }
 
