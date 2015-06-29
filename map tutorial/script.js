@@ -1,8 +1,9 @@
-d3.select(window).on("resize", throttle);
+var width = document.getElementById('container').offsetWidth-60;
+var height = screen.height
+var centered;
 
-var width = screen.width,
-    height = screen.height,
-    centered;
+
+var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden").attr("id", "tooltip");
 
 function clicked(d) {
   var x, y, k;
@@ -40,7 +41,7 @@ var projection = d3.geo.albers()
 var path = d3.geo.path()
     .projection(projection);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#container").append("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -53,13 +54,15 @@ svg.append("rect")
 var g = svg.append("g");
 
 d3.json("world.json", function(error, map) {
+  var w = document.getElementById('container').width;
+  var h =document.getElementById('container').height;
 
   //color map
-  g.selectAll(".subunit")
+  var country = g.selectAll(".country")
    .data(topojson.feature(map,map.objects.subunits).features)
    .enter()
    .append("path")
-   .attr("class", function(d) { return "subunit " + d.id; })
+   .attr("class", function(d) { return "country " + d.id; })
    .style("fill", function(){
 		var letters = '0123456789ABCDEF'.split('');
 		var color = '#';
@@ -68,13 +71,20 @@ d3.json("world.json", function(error, map) {
 		}
 		return color;
 	})
-   .attr("d", path).on("click", clicked);
+   .attr("d", path)
+   .on("click", clicked)
+   .on("mousemove", function(d,i) {
+      var mouse = d3.mouse(svg.node()).map( function(d) { return parseInt(d); } );
+        tooltip
+          .classed("hidden", false)
+          .html(d.properties.name)
+          .attr("style", function(d) {
+            var left  = "left:"+(mouse[0]-60)+"px;top:"+(mouse[1]+10)+"px";
+            var right = "left:"+(mouse[0]+20)+"px;top:"+(mouse[1]+10)+"px";
+            return mouse[0] > width/2 ? left : right;
+          })
+      })
+      .on("mouseout",  function(d,i) {
+        tooltip.classed("hidden", true)
+      }); 
 });
-
-var throttleTimer;
-function throttle() {
-  window.clearTimeout(throttleTimer);
-    throttleTimer = window.setTimeout(function() {
-      redraw();
-    }, 200);
-}
