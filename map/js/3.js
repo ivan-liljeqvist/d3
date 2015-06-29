@@ -4,14 +4,42 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([1, 8])
     .on("zoom", move);
 
-var width = document.getElementById('container').offsetWidth-60;
-var height = width / 2;
+var width = screen.width;
+var height = screen.height;
+var centered;
 
 var topo,projection,path,svg,g;
 
 var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
 
 setup(width,height);
+
+function clicked(d) {
+  var x, y, k;
+
+  alert(d.properties.name+" "+path.centroid(d));
+
+  if (centered !== d) {
+    var centroid = path.centroid(d);
+    x = centroid[0];
+    y = centroid[1];
+    k = 4;
+    centered = d;
+  } else {
+    x = width / 2;
+    y = height / 2;
+    k = 1;
+    centered = null;
+  }
+
+  g.selectAll("path")
+      .classed("active", centered && function(d) { return d === centered; });
+
+  g.transition()
+      .duration(750)
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+      .style("stroke-width", 1.5 / k + "px");
+}
 
 function setup(width,height){
   projection = d3.geo.mercator()
