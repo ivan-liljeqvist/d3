@@ -1,13 +1,26 @@
 var width = document.getElementById('container').offsetWidth-60;
-var height = screen.height
+var height = width/1.5;
 var centered;
 
 
 var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden").attr("id", "tooltip");
 
+function zoom(k,x,y){
+  g.selectAll("path")
+      .classed("active", centered && function(d) { return d === centered; });
+
+  g.transition()
+      .duration(750)
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+      .style("stroke-width", 1.5 / k + "px");
+}
+
+function doubleClicked(d){
+  
+}
+
 function clicked(d) {
   var x, y, k;
-
 
   if (centered !== d) {
     var centroid = path.centroid(d);
@@ -22,20 +35,12 @@ function clicked(d) {
     centered = null;
   }
 
-  g.selectAll("path")
-      .classed("active", centered && function(d) { return d === centered; });
-
-  g.transition()
-      .duration(750)
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-      .style("stroke-width", 1.5 / k + "px");
+  zoom(k,x,y)
 }
 
-var projection = d3.geo.albers()
-    .center([0, 55.4])
-    .rotate([4.4, 0])
-    .parallels([50, 60])
-    .scale(1000)
+
+var projection = d3.geo.mercator()
+    .scale(230)
     .translate([width / 2, height / 2]);
 
 var path = d3.geo.path()
@@ -79,8 +84,9 @@ d3.json("world.json", function(error, map) {
           .classed("hidden", false)
           .html(d.properties.name)
           .attr("style", function(d) {
-            var left  = "left:"+(mouse[0]-60)+"px;top:"+(mouse[1]+10)+"px";
-            var right = "left:"+(mouse[0]+20)+"px;top:"+(mouse[1]+10)+"px";
+            var tooltipWidth = parseInt(tooltip.style("width"));
+            var left  = "left:"+(mouse[0]-tooltipWidth-10)+"px;top:"+(mouse[1]+10)+"px";
+            var right = "left:"+(mouse[0]+15)+"px;top:"+(mouse[1]+10)+"px";
             return mouse[0] > width/2 ? left : right;
           })
       })
