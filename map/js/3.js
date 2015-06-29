@@ -4,8 +4,8 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([1, 8])
     .on("zoom", move);
 
-var width = screen.width;
-var height = screen.height;
+var width = document.getElementById('container').offsetWidth-60;
+var height = width / 2;
 var centered;
 
 var topo,projection,path,svg,g;
@@ -17,13 +17,12 @@ setup(width,height);
 function clicked(d) {
   var x, y, k;
 
-  alert(d.properties.name+" "+path.centroid(d));
 
   if (centered !== d) {
     var centroid = path.centroid(d);
     x = centroid[0];
     y = centroid[1];
-    k = 4;
+    k = width / 2 / Math.PI*0.04;
     centered = d;
   } else {
     x = width / 2;
@@ -95,7 +94,7 @@ function draw(topo) {
       })
       .on("mouseout",  function(d,i) {
         tooltip.classed("hidden", true)
-      }); 
+      }).on("click", clicked); 
    
 }
 

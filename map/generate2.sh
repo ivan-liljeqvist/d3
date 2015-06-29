@@ -14,6 +14,7 @@ ogr2ogr \
 
 topojson \
   -o world.json \
+  -s 1e-5 \
   --id-property SU_A3 \
   --properties name=NAME \
   -- \
