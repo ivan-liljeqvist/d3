@@ -55,7 +55,7 @@ svg.append("rect")
     .attr("class", "background")
     .attr("width", width)
     .attr("height", height)
-    .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+    .call(d3.behavior.zoom().scaleExtent([1, 12]).on("zoom", zoom));
     //.on("click", clicked);
 
 var g = svg.append("g");
